@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>ExpenseFlow</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="stylesheet" href="/static/style.css">
+```
+
+</head>
+
+<body>
+
+<div class="app">
+
+```
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
+
+        <div>
+            <h2>ExpenseFlow</h2>
+            <span>Personal Finance</span>
+        </div>
+
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <a href="#dashboard" class="nav-link active">
+            <i class="fa-solid fa-chart-pie"></i>
+            Dashboard
+        </a>
+
+        <a href="#expenses" class="nav-link">
+            <i class="fa-solid fa-receipt"></i>
+            Expenses
+        </a>
+
+        <a href="#analytics" class="nav-link">
+            <i class="fa-solid fa-chart-column"></i>
+            Analytics
+        </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+        <div class="mini-tip">
+
+            <i class="fa-solid fa-lightbulb"></i>
+
+            <div>
+                <strong>Smart Tip</strong>
+
+                <p>
+                    Track every expense to understand your spending.
+                </p>
+            </div>
+
+        </div>
+
+        <button
+            type="button"
+            class="budget-sidebar-btn"
+            onclick="openBudgetModal()">
+
+            <i class="fa-solid fa-sliders"></i>
+            Monthly Budget
+
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="main-content">
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+        <div>
+
+            <p class="eyebrow">
+                PERSONAL FINANCE
+            </p>
+
+            <h1 id="dashboard">
+                Expense Dashboard
+            </h1>
+
+            <p class="subtitle">
+                Monitor your spending and stay in control of your money.
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            class="primary-btn"
+            onclick="openExpenseModal()">
+
+            <i class="fa-solid fa-plus"></i>
+            Add Expense
+
+        </button>
+
+    </header>
+
+
+    <!-- ================= STATS ================= -->
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+
+            <div class="stat-icon green">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+
+            <div>
+
+                <span>Total Spent</span>
+
+                <h2>
+                    ₹{{printf "%.2f" .TotalSpent}}
+                </h2>
+
+                <small>
+                    All recorded expenses
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon blue">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
+
+            <div>
+
+                <span>Total Expenses</span>
+
+                <h2>
+                    {{.TotalExpenses}}
+                </h2>
+
+                <small>
+                    Transactions recorded
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon purple">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+
+            <div>
+
+                <span>Average Expense</span>
+
+                <h2>
+                    ₹{{printf "%.2f" .AverageExpense}}
+                </h2>
+
+                <small>
+                    Per transaction
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon orange">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+
+            <div>
+
+                <span>Monthly Budget</span>
+
+                <h2>
+                    ₹{{printf "%.0f" .MonthlyBudget}}
+                </h2>
+
+                <small>
+                    ₹{{printf "%.0f" .MonthlySpent}} used this month
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= CHART + BUDGET ================= -->
+
+    <section class="content-grid">
+
+        <!-- SPENDING CHART -->
+
+        <div class="card spending-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h3>Spending Overview</h3>
+
+                    <p>
+                        Your spending over the last 6 months
+                    </p>
+
+                </div>
+
+                <div class="chart-label">
+                    <span class="dot"></span>
+                    Spending
+                </div>
+
+            </div>
+
+
+            <div class="bar-chart">
+
+                {{range .Months}}
+
+                <div class="bar-column">
+
+                    <div class="bar-value">
+                        ₹{{printf "%.0f" .Amount}}
+                    </div>
+
+                    <div class="bar-wrapper">
+
+                        <div
+                            class="bar"
+                            style="height: {{printf "%.2f" .Height}}%;">
+                        </div>
+
+                    </div>
+
+                    <span class="bar-month">
+                        {{.Label}}
+                    </span>
+
+                </div>
+
+                {{end}}
+
+            </div>
+
+        </div>
+
+
+        <!-- BUDGET -->
+
+        <div class="card budget-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h3>Monthly Budget</h3>
+
+                    <p>Current month</p>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    onclick="openBudgetModal()"
+                    title="Edit budget">
+
+                    <i class="fa-solid fa-pen"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="budget-circle">
+
+                <div
+                    class="circle-progress"
+                    style="--progress: {{printf "%.0f" .BudgetPercent}}%;">
+
+                    <div class="circle-inner">
+
+                        <strong>
+                            {{printf "%.0f" .BudgetPercent}}%
+                        </strong>
+
+                        <span>used</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="budget-numbers">
+
+                <div>
+
+                    <span>Spent</span>
+
+                    <strong>
+                        ₹{{printf "%.0f" .MonthlySpent}}
+                    </strong>
+
+                </div>
+
+                <div>
+
+                    <span>Budget</span>
+
+                    <strong>
+                        ₹{{printf "%.0f" .MonthlyBudget}}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="budget-progress">
+
+                <div
+                    class="progress-fill"
+                    style="width: {{printf "%.0f" .BudgetPercent}}%;">
+                </div>
+
+            </div>
+
+
+            <p class="budget-message">
+
+                {{if eq (printf "%.0f" .BudgetPercent) "100"}}
+
+                    ⚠️ You have reached your monthly budget.
+
+                {{else}}
+
+                    ✓ You are within your monthly budget.
+
+                {{end}}
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= ANALYTICS ================= -->
+
+    <section
+        class="card analytics-card"
+        id="analytics">
+
+        <div class="card-header">
+
+            <div>
+
+                <h3>Category Breakdown</h3>
+
+                <p>
+                    See where your money goes
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="category-grid">
+
+            {{if .Categories}}
+
+                {{range .Categories}}
+
+                <div class="category-item">
+
+                    <div class="category-icon {{.Class}}">
+                        {{.Icon}}
+                    </div>
+
+                    <div class="category-info">
+
+                        <div class="category-top">
+
+                            <strong>
+                                {{.Name}}
+                            </strong>
+
+                            <span>
+                                ₹{{printf "%.0f" .Amount}}
+                            </span>
+
+                        </div>
+
+                        <div class="category-track">
+
+                            <div
+                                class="category-fill {{.Class}}"
+                                style="width: {{printf "%.2f" .Percent}}%;">
+                            </div>
+
+                        </div>
+
+                        <small>
+                            {{printf "%.1f" .Percent}}% of total spending
+                        </small>
+
+                    </div>
+
+                </div>
+
+                {{end}}
+
+            {{else}}
+
+                <div class="empty-analytics">
+
+                    <i class="fa-solid fa-chart-pie"></i>
+
+                    <h3>
+                        No spending data yet
+                    </h3>
+
+                    <p>
+                        Add your first expense to see category analytics.
+                    </p>
+
+                </div>
+
+            {{end}}
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= EXPENSES ================= -->
+
+    <section
+        class="card expenses-card"
+        id="expenses">
+
+        <div class="card-header expenses-header">
+
+            <div>
+
+                <h3>Recent Expenses</h3>
+
+                <p>
+                    Manage your transactions
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="secondary-btn"
+                onclick="openExpenseModal()">
+
+                <i class="fa-solid fa-plus"></i>
+                Add Expense
+
+            </button>
+
+        </div>
+
+
+        <!-- FILTERS -->
+
+        <div class="filters">
+
+            <div class="search-box">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search expenses..."
+                    oninput="filterExpenses()">
+
+            </div>
+
+
+            <div class="select-box">
+
+                <i class="fa-solid fa-filter"></i>
+
+                <select
+                    id="categoryFilter"
+                    onchange="filterExpenses()">
+
+                    <option value="all">
+                        All Categories
+                    </option>
+
+                    <option value="Food">
+                        Food
+                    </option>
+
+                    <option value="Transport">
+                        Transport
+                    </option>
+
+                    <option value="Shopping">
+                        Shopping
+                    </option>
+
+                    <option value="Entertainment">
+                        Entertainment
+                    </option>
+
+                    <option value="Bills">
+                        Bills
+                    </option>
+
+                    <option value="Health">
+                        Health
+                    </option>
+
+                    <option value="Education">
+                        Education
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLE -->
+
+        <div class="table-container">
+
+            <table id="expenseTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Expense</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {{if .Expenses}}
+
+                        {{range .Expenses}}
+
+                        <tr
+                            class="expense-row"
+                            data-category="{{.Category}}"
+                            data-id="{{.ID}}"
+                            data-description="{{.Description}}"
+                            data-amount="{{printf "%.2f" .Amount}}"
+                            data-date="{{.Date}}">
+
+                            <td>
+
+                                <div class="expense-name">
+
+                                    <div class="expense-icon">
+                                        {{.Icon}}
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            {{.Description}}
+                                        </strong>
+
+                                        <span>
+                                            Transaction #{{.ID}}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="category-badge {{.Category}}">
+
+                                    {{.Category}}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="date-text">
+                                    {{.Date}}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <strong class="amount">
+                                    ₹{{printf "%.2f" .Amount}}
+                                </strong>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <button
+                                        type="button"
+                                        class="action-btn edit"
+                                        onclick="editExpenseFromRow(this)"
+                                        title="Edit">
+
+                                        <i class="fa-solid fa-pen"></i>
+
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="action-btn delete"
+                                        onclick="deleteExpense({{.ID}})"
+                                        title="Delete">
+
+                                        <i class="fa-solid fa-trash"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                        {{end}}
+
+                    {{else}}
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="empty-table">
+
+                                <div>
+
+                                    <i class="fa-solid fa-receipt"></i>
+
+                                    <h3>
+                                        No expenses yet
+                                    </h3>
+
+                                    <p>
+                                        Start tracking your spending by adding an expense.
+                                    </p>
+
+                                    <button
+                                        type="button"
+                                        class="primary-btn"
+                                        onclick="openExpenseModal()">
+
+                                        <i class="fa-solid fa-plus"></i>
+                                        Add First Expense
+
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {{end}}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <p>
+            ExpenseFlow v1.1
+            <span>•</span>
+            Built with Go + SQLite
+        </p>
+
+    </footer>
+
+</main>
+```
+
+</div>
+
+<!-- ================= EXPENSE MODAL ================= -->
+
+<div
+    class="modal-overlay"
+    id="expenseModal">
+
+```
+<div class="modal">
+
+    <div class="modal-header">
+
+        <div>
+
+            <span class="modal-icon">
+                <i class="fa-solid fa-receipt"></i>
+            </span>
+
+            <div>
+
+                <h2 id="expenseModalTitle">
+                    Add Expense
+                </h2>
+
+                <p>
+                    Record your spending
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="close-button"
+            onclick="closeExpenseModal()">
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+    </div>
+
+
+    <form
+        id="expenseForm"
+        onsubmit="saveExpense(event)">
+
+        <div class="form-group">
+
+            <label for="description">
+                Description
+            </label>
+
+            <input
+                type="text"
+                id="description"
+                placeholder="e.g. Lunch at restaurant"
+                required>
+
+        </div>
+
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="amount">
+                    Amount
+                </label>
+
+                <div class="input-prefix">
+
+                    <span>₹</span>
+
+                    <input
+                        type="number"
+                        id="amount"
+                        placeholder="0.00"
+                        min="1"
+                        step="0.01"
+                        required>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="category">
+                    Category
+                </label>
+
+                <select
+                    id="category"
+                    required>
+
+                    <option value="">
+                        Select category
+                    </option>
+
+                    <option value="Food">
+                        🍔 Food
+                    </option>
+
+                    <option value="Transport">
+                        🚗 Transport
+                    </option>
+
+                    <option value="Shopping">
+                        🛍️ Shopping
+                    </option>
+
+                    <option value="Entertainment">
+                        🎬 Entertainment
+                    </option>
+
+                    <option value="Bills">
+                        💡 Bills
+                    </option>
+
+                    <option value="Health">
+                        ❤️ Health
+                    </option>
+
+                    <option value="Education">
+                        📚 Education
+                    </option>
+
+                    <option value="Other">
+                        📦 Other
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="expenseDate">
+                Date
+            </label>
+
+            <input
+                type="date"
+                id="expenseDate"
+                required>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="cancel-btn"
+                onclick="closeExpenseModal()">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                type="submit"
+                class="primary-btn">
+
+                <i class="fa-solid fa-check"></i>
+                Save Expense
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```
+
+</div>
+
+<!-- ================= BUDGET MODAL ================= -->
+
+<div
+    class="modal-overlay"
+    id="budgetModal">
+
+```
+<div class="modal small-modal">
+
+    <div class="modal-header">
+
+        <div>
+
+            <span class="modal-icon">
+                <i class="fa-solid fa-bullseye"></i>
+            </span>
+
+            <div>
+
+                <h2>
+                    Monthly Budget
+                </h2>
+
+                <p>
+                    Set your monthly spending limit
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="close-button"
+            onclick="closeBudgetModal()">
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+    </div>
+
+
+    <form
+        id="budgetForm"
+        onsubmit="saveBudget(event)">
+
+        <div class="form-group">
+
+            <label for="budgetAmount">
+                Monthly Budget
+            </label>
+
+            <div class="input-prefix">
+
+                <span>₹</span>
+
+                <input
+                    type="number"
+                    id="budgetAmount"
+                    min="1"
+                    step="100"
+                    value="{{printf "%.0f" .MonthlyBudget}}"
+                    required>
+
+            </div>
+
+        </div>
+
+
+        <div class="budget-note">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+            <span>
+                Your budget is saved in SQLite and will remain after restarting the application.
+            </span>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="cancel-btn"
+                onclick="closeBudgetModal()">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                type="submit"
+                class="primary-btn">
+
+                <i class="fa-solid fa-check"></i>
+                Save Budget
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```
+
+</div>
+
+<!-- ================= TOAST ================= -->
+
+<div
+    id="toast"
+    class="toast">
+
+```
+<i class="fa-solid fa-circle-check"></i>
+
+<span id="toastMessage">
+    Success
+</span>
+```
+
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
