@@ -90,20 +90,6 @@ All expenses and budget information are stored in a local **SQLite database**, a
 
 ---
 
-## 🖥️ Application Preview
-
-<p align="center">
-  <img src="screenshots/dashboard.png" width="900" alt="ExpenseFlow Dashboard">
-</p>
-
-<p align="center">
-  <img src="screenshots/add-expense.png" width="700" alt="ExpenseFlow Add Expense">
-</p>
-
-> 📌 Add your actual screenshots inside a `screenshots` folder and update the filenames above if required.
-
----
-
 ## 🛠️ Tech Stack
 
 | Technology | Purpose |
