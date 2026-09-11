@@ -26,6 +26,8 @@ The application provides a dashboard where users can record daily expenses, cate
 
 The backend is developed using **Go**, while **SQLite** is used for persistent data storage. The frontend combines **HTML, CSS, and JavaScript** to provide an interactive web interface.
 
+<img src="expense flow.png">
+
 ---
 
 ## ✨ Features
